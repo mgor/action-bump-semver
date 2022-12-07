@@ -20,7 +20,6 @@ jobs:
         id: release-label
         if: ${{ steps.get-merged-pull-request.outputs.title != null }}
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
           labels: ${{ steps.get-merged-pull-request.outputs.labels }}
 
       - uses: actions-ecosystem/action-get-latest-tag@v1
@@ -44,6 +43,7 @@ jobs:
           regex: '```release_note([\s\S]*)```'
 
       - name: Tag
+        if: ${{ steps.bump-semver.outputs.new_version != null }}
         run: |
           tag=${{ steps.bump-semver.outputs.new_version }}
           message='${{ steps.bump-semver.outputs.new_version }}: PR #${{ github.event.pull_request.number }} ${{ github.event.pull_request.title }}'
@@ -53,7 +53,7 @@ jobs:
           git push origin "${tag}"
 
       - uses: actions/create-release@v1
-        if: ${{ steps.release-label.outputs.level == 'major' || steps.release-label.outputs.level == 'minor' }}
+        if: ${{ (steps.release-label.outputs.level == 'major' || steps.release-label.outputs.level == 'minor') && steps.bump-ver.outputs.new_version != null }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:

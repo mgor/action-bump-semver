@@ -10,11 +10,13 @@ async function run(): Promise<void> {
     core.setOutput('new_version', newVersion);
   } catch (e: any) {
     core.error(e);
+    let message;
     if (e instanceof Error) {
-      core.setFailed(e.message);
+      message = e.message;
     } else {
-      core.setFailed(e);
+      message = e;
     }
+    core.setFailed(message);
   }
 }
 
